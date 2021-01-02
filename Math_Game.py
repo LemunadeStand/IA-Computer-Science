@@ -5,6 +5,7 @@ Add ability to change resolution of resX and resY
 import pygame as pg
 import random
 from button import Button
+from answer import Answer
 pg.init()
 pg.font.init()
 
@@ -20,13 +21,17 @@ funcType = ""
 game_window = pg.display.set_mode((resX, resY))
 
 buttons = []
-answerButtons = []
+answerButtons = [[]]
 #Creating the answer buttons for explanations
 for x in range(10):
     if x<5:
-        answerButtons.append(Button((0,150,150),50*x,100,50,50,False))
+        tempArray = []
+        answerButtons.append(tempArray)
+        answerButtons[x].append(Button((0,150,150),50*x,100,50,50,False))
     else:
-        answerButtons.append(Button((0,150,150),50*(x-5),150,50,50,False))
+        tempArray = []
+        answerButtons.append(tempArray)
+        answerButtons[x].append(Button((0,150,150),50*(x-5),150,50,50,False))
 pg.display.set_caption("Math Game")
 settingsButtons = []
 tempButtons = []
@@ -64,8 +69,8 @@ def initialize(hasInit):
     buttons.append(Button((0,0,0),(resX-400)/2+300,(resY-400)/2,200,5,False))
     #Max Number buttons last 3
     buttons.append(Button((42,191,62),0,resY-2*dif-102,300,100,False,"Enter"))
-    buttons.append(Button((0,150,150),(resX-400)/2,(resY-400)/2,300,100,False,"Max Number: "))
-    buttons.append(Button((0,150,150),(resX-400)/2+300, (resY-400)/2,200,100,False))
+    buttons.append(Button((0,150,150),(resX-400)/2-100,(resY-400)/2,300,100,False,"Max Number: "))
+    buttons.append(Button((0,150,150),(resX-400)/2+200, (resY-400)/2,200,100,False))
 
     #General Settings button
     settingsButtons.append(Button((42,191,62),0,0,300,100,True,"Settings"))
@@ -113,7 +118,8 @@ def update(draw,maxNum,settings,screen):
                 buttons[15].drawButton(game_window)
                 buttons[16].drawButton(game_window)
                 for x in range(10):
-                    answerButtons[x].drawButton(game_window,(0,0,0))
+                    answerButtons[x][0].drawButton(game_window,(0,0,0))
+                    answerButtons[x][0].visible = True
 
         else:
             for x in range(10,14):
@@ -139,6 +145,8 @@ doNegatives = False
 showSettings = False
 #Determines if screen is being changed
 changeScreen = False
+#If 10 questions have been answered
+showAnswers = False
 #The two numbers that are outputted
 num1 = 0
 num2 = 0
@@ -173,19 +181,19 @@ while running:
                             else:
                                 buttons[len(buttons)-1].text = output
                         elif x==10:
-                            funcType="m"
+                            funcType="x"
                             isDoingFunction = True
                             getMaxNum = True
                         elif x==11:
-                            funcType="d"
+                            funcType="÷"
                             isDoingFunction = True
                             getMaxNum = True
                         elif x==12:
-                            funcType="a"
+                            funcType="+"
                             isDoingFunction = True
                             getMaxNum = True
                         elif x==13:
-                            funcType="s"
+                            funcType="-"
                             isDoingFunction = True
                             getMaxNum = True
                         elif x==len(buttons)-3:
@@ -206,16 +214,20 @@ while running:
                                     buttons[13].visible = False
                                     settingsButtons[1].visible = True
                                     settingsButtons[2].visible = True
-                            else:
+                            elif currentQuestion<=9:
                                 userAnswer = int(output)
+                                #Adds answers to array of answer buttons
+                                answerButtons[currentQuestion].append(Answer(num1,num2,answer,userAnswer, userAnswer==answer))
                                 #Checks if users answer is correct
                                 if userAnswer == answer:
-                                    answerButtons[currentQuestion].color = (17,247,5)
+                                    answerButtons[currentQuestion][0].color = (17,247,5)
                                 else:
-                                    answerButtons[currentQuestion].color = (247,13,5)
+                                    answerButtons[currentQuestion][0].color = (247,13,5)
                                 #Recognize when 10 questions have been answered
                                 if currentQuestion < 9:
                                     currentQuestion = currentQuestion + 1
+                                else:
+                                    showAnswers = True
                                 Answered=True
                             output=""
                             buttons[len(buttons)-1].text = output
@@ -240,6 +252,12 @@ while running:
                             doNegatives = not doNegatives
                         elif x==2:
                             changeScreen = not changeScreen
+            if showAnswers:
+                for x in range(10):
+                    if answerButtons[x][0].isOver(pg.mouse.get_pos()):
+                        buttons[len(buttons)-1].text = "Correct Answer: " + str(answerButtons[x][1].answer)
+                        buttons[14].text = "    "+str(answerButtons[x][1].num1)
+                        buttons[15].text = funcType+"   "+str(answerButtons[x][1].num2)
                         
         elif event.type == pg.MOUSEBUTTONUP: 
             pass
@@ -252,30 +270,42 @@ while running:
                 buttons[14].color = (0,150,150)
                 buttons[15].color = (0,150,150)
                 buttons[16].color = (0,0,0)
+            if showAnswers:
+                for x in range(10):
+                    if answerButtons[x][0].isOver(pg.mouse.get_pos()):
+                        if not answerButtons[x][1].correct:
+                            answerButtons[x][0].color = (209, 17, 10)
+                        else:
+                            answerButtons[x][0].color = (42,232,67)
+                    else:
+                        if not answerButtons[x][1].correct:
+                            answerButtons[x][0].color = (247, 13, 5)
+                        else:
+                            answerButtons[x][0].color = (17,247,5)
         if funcType != "":
             if Answered:
-                if funcType == "m":
+                if funcType == "x":
                     num1 = random.randint(1,MaxNum)
                     num2 = random.randint(1,MaxNum)
                     answer = num1*num2
                     buttons[14].text = "    "+ str(num1)
                     buttons[15].text = "x   "+(str(num2))
                     Answered = False
-                elif funcType == "d":
+                elif funcType == "÷":
                     num1 = random.randint(1,MaxNum)
                     answer = random.randint(1,MaxNum)
                     num2 = num1*answer
                     buttons[14].text = "    "+ str(num2)
                     buttons[15].text = "÷   "+(str(num1))
                     Answered = False
-                elif funcType =="a":
+                elif funcType =="+":
                     num1 = random.randint(1,MaxNum)
                     num2 = random.randint(1,MaxNum)
                     answer = num1+num2
                     buttons[14].text = "    "+ str(num1)
                     buttons[15].text = "+   "+(str(num2))
                     Answered = False
-                elif funcType =="s":
+                elif funcType =="-":
                     if doNegatives:
                         num1 = random.randint(1,MaxNum)
                         num2 = random.randint(1,MaxNum)
