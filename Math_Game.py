@@ -55,7 +55,7 @@ def initialize(hasInit):
     buttons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+150,200,100,True,"Divide"))
     buttons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+300,200,100,True,"Add"))
     buttons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+450,200,100,True,"Subtract"))
-    #Display buttons 14-16
+    #Display buttons 14-17
     if hasInit:
         buttons.append(tempButtons[0])
         buttons[14].x=(resX-400)/2+300
@@ -67,6 +67,7 @@ def initialize(hasInit):
         buttons.append(Button((0,150,150),(resX-400)/2+300,(resY-400)/2-200,200,100,False))
         buttons.append(Button((0,150,150),(resX-400)/2+300,(resY-400)/2-100,200,100,False))
     buttons.append(Button((0,0,0),(resX-400)/2+300,(resY-400)/2,200,5,False))
+    buttons.append(Button((0,150,150),(resX-400)/2+200,(resY-400)/2+100,200,100,False))
     #Max Number buttons last 3
     buttons.append(Button((42,191,62),0,resY-2*dif-102,300,100,False,"Enter"))
     buttons.append(Button((0,150,150),(resX-400)/2-100,(resY-400)/2,300,100,False,"Max Number: "))
@@ -83,7 +84,7 @@ def initialize(hasInit):
 
 #Updates drawing of buttons
 #Visible just determines if they can be clicked or not; not if they are actually visible
-def update(draw,maxNum,settings,screen):
+def update(draw,maxNum,settings,screen,review):
     game_window.fill((0, 150, 150))
     settingsButtons[0].drawButton(game_window,(0,0,0))
     if settings:
@@ -101,22 +102,32 @@ def update(draw,maxNum,settings,screen):
 
     else:
         if draw:
-            for x in range(10):
-                buttons[x].drawButton(game_window,(0,0,0))
-                buttons[x].visible = True
+            if review:
+                for x in range(10):
+                    buttons[x].visible = False
+                buttons[len(buttons)-3].text = "Done"
+                buttons[len(buttons)-3].x = 0
+                buttons[len(buttons)-3].y = resY-100
+                buttons[len(buttons)-3].drawButton(game_window,(0,0,0))
+            else:
+                for x in range(10):
+                    buttons[x].drawButton(game_window,(0,0,0))
+                    buttons[x].visible = True
+                buttons[len(buttons)-3].drawButton(game_window,(0,0,0))
+                buttons[len(buttons)-3].visible = True
             buttons[len(buttons)-1].drawButton(game_window)
-            buttons[len(buttons)-3].drawButton(game_window,(0,0,0))
             buttons[len(buttons)-1].visible = True
-            buttons[len(buttons)-3].visible = True
             for x in range(10,14):
                 buttons[x].visible = False
             if not maxNum:
                 buttons[14].visible = True
                 buttons[15].visible = True
                 buttons[16].visible = True
+                buttons[17].visible = True
                 buttons[14].drawButton(game_window)
                 buttons[15].drawButton(game_window)
                 buttons[16].drawButton(game_window)
+                buttons[17].drawButton(game_window)
                 for x in range(10):
                     answerButtons[x][0].drawButton(game_window,(0,0,0))
                     answerButtons[x][0].visible = True
@@ -198,9 +209,10 @@ while running:
                             getMaxNum = True
                         elif x==len(buttons)-3:
                             if getMaxNum and not changeScreen:
-                                MaxNum=int(output)
-                                Answered=True
-                                getMaxNum = False
+                                if output != "":
+                                    MaxNum=int(output)
+                                    Answered=True
+                                    getMaxNum = False
                             elif changeScreen:
                                 counter = counter+1
                                 if counter==2:
@@ -215,7 +227,10 @@ while running:
                                     settingsButtons[1].visible = True
                                     settingsButtons[2].visible = True
                             elif currentQuestion<=9:
+                                if output =="":
+                                    output = "0"
                                 userAnswer = int(output)
+                                Answered=True
                                 #Adds answers to array of answer buttons
                                 answerButtons[currentQuestion].append(Answer(num1,num2,answer,userAnswer, userAnswer==answer))
                                 #Checks if users answer is correct
@@ -228,9 +243,27 @@ while running:
                                     currentQuestion = currentQuestion + 1
                                 else:
                                     showAnswers = True
-                                Answered=True
+                                    currentQuestion=currentQuestion+1
+                                    buttons[17].text = "Your Answer: " + str(answerButtons[9][1].userAnswer)
+                                    buttons[14].text = "    "+str(answerButtons[9][1].num1)
+                                    buttons[15].text = funcType+"   "+str(answerButtons[9][1].num2)
+                                    Answered = False
+                            #Reset for another time around
+                            elif currentQuestion > 9 and showAnswers:
+                                isDoingFunction = False
+                                showAnswers = False
+                                buttons[len(buttons)-3].text = "Enter"
+                                buttons[len(buttons)-3].x = 0
+                                buttons[len(buttons)-3].y = resY-2*dif-102
+                                currentQuestion = 0
+                                for x in range(10):
+                                    answerButtons[x].pop(1)
+                                    answerButtons[x][0].color = (0,150,150)
+                                buttons[17].text = ""
                             output=""
                             buttons[len(buttons)-1].text = output
+                            if showAnswers:
+                                buttons[len(buttons)-1].text = "Correct Answer: " + str(answerButtons[9][1].answer)
             for x in range(len(settingsButtons)):
                 if settingsButtons[x].visible:
                     if settingsButtons[x].isOver(pg.mouse.get_pos()):
@@ -256,6 +289,7 @@ while running:
                 for x in range(10):
                     if answerButtons[x][0].isOver(pg.mouse.get_pos()):
                         buttons[len(buttons)-1].text = "Correct Answer: " + str(answerButtons[x][1].answer)
+                        buttons[17].text = "Your Answer: " + str(answerButtons[x][1].userAnswer)
                         buttons[14].text = "    "+str(answerButtons[x][1].num1)
                         buttons[15].text = funcType+"   "+str(answerButtons[x][1].num2)
                         
@@ -270,6 +304,7 @@ while running:
                 buttons[14].color = (0,150,150)
                 buttons[15].color = (0,150,150)
                 buttons[16].color = (0,0,0)
+                buttons[17].color = (0,150,150)
             if showAnswers:
                 for x in range(10):
                     if answerButtons[x][0].isOver(pg.mouse.get_pos()):
@@ -292,11 +327,11 @@ while running:
                     buttons[15].text = "x   "+(str(num2))
                     Answered = False
                 elif funcType == "÷":
-                    num1 = random.randint(1,MaxNum)
+                    num2 = random.randint(1,MaxNum)
                     answer = random.randint(1,MaxNum)
-                    num2 = num1*answer
-                    buttons[14].text = "    "+ str(num2)
-                    buttons[15].text = "÷   "+(str(num1))
+                    num1 = num2*answer
+                    buttons[14].text = "    "+ str(num1)
+                    buttons[15].text = "÷   "+(str(num2))
                     Answered = False
                 elif funcType =="+":
                     num1 = random.randint(1,MaxNum)
@@ -318,4 +353,4 @@ while running:
                     buttons[15].text = "-   "+(str(num2))
                     Answered = False
     pg.display.update()
-    update(isDoingFunction,getMaxNum,showSettings,changeScreen)
+    update(isDoingFunction,getMaxNum,showSettings,changeScreen,showAnswers)
