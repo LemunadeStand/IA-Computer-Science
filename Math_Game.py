@@ -1,6 +1,6 @@
 """
 Ideas:
-Add ability to change resolution of resX and resY
+At pc at home
 """
 import pygame as pg
 import random
@@ -11,7 +11,7 @@ pg.font.init()
 
 #Resolution
 resX = 800
-resY = 1000
+resY = 800
 #Difference in pixels
 dif = int(resX/5)
 output = ""
@@ -79,36 +79,40 @@ def initialize(hasInit):
     settingsButtons.append(Button((247,13,5),(resX-200)/2,(resY-600)/2,250,100,False,"Negatives"))
     #Change screen size
     settingsButtons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+150,300,100,False,"Change Screen Size"))
-    settingsButtons.append(Button((0,150,150),0,resY-2*dif-204,200,100,False,"Height"))
-    settingsButtons.append(Button((0,150,150),250,resY-2*dif-204,200,100,False,"Width"))
+    settingsButtons.append(Button((42,191,62),50,(resY-600)/2+300,200,100,False,"800x800"))
+    settingsButtons.append(Button((42,191,62),300,(resY-600)/2+300,200,100,False,"800x1000"))
+    settingsButtons.append(Button((42,191,62),550,(resY-600)/2+300,200,100,False,"1000x800"))
 
 #Updates drawing of buttons
 #Visible just determines if they can be clicked or not; not if they are actually visible
 def update(draw,maxNum,settings,screen,review):
     game_window.fill((0, 150, 150))
+    for x in range(len(settingsButtons)):
+        settingsButtons[x].visible = False
+    for x in range(len(buttons)):
+        buttons[x].visible = False
+    for x in range(10):
+        answerButtons[x][0].visible = False
     settingsButtons[0].drawButton(game_window,(0,0,0))
+    settingsButtons[0].visible = True
     if settings:
         for x in range(len(settingsButtons)):
             if x<3:
                 settingsButtons[x].drawButton(game_window,(0,0,0))
+                settingsButtons[x].visible = True
             elif screen:
-                settingsButtons[x].drawButton(game_window)
-                for x in range(10):
-                    buttons[x].drawButton(game_window,(0,0,0))
-                    buttons[x].visible = True
-                buttons[len(buttons)-3].drawButton(game_window,(0,0,0))
-                buttons[len(buttons)-3].visible = True
+                settingsButtons[x].drawButton(game_window, (0,0,0))
+                settingsButtons[x].visible = True
                 
 
     else:
         if draw:
             if review:
-                for x in range(10):
-                    buttons[x].visible = False
                 buttons[len(buttons)-3].text = "Done"
                 buttons[len(buttons)-3].x = 0
                 buttons[len(buttons)-3].y = resY-100
                 buttons[len(buttons)-3].drawButton(game_window,(0,0,0))
+                buttons[len(buttons)-3].visible = True
             else:
                 for x in range(10):
                     buttons[x].drawButton(game_window,(0,0,0))
@@ -117,8 +121,6 @@ def update(draw,maxNum,settings,screen,review):
                 buttons[len(buttons)-3].visible = True
             buttons[len(buttons)-1].drawButton(game_window)
             buttons[len(buttons)-1].visible = True
-            for x in range(10,14):
-                buttons[x].visible = False
             if not maxNum:
                 buttons[14].visible = True
                 buttons[15].visible = True
@@ -136,12 +138,9 @@ def update(draw,maxNum,settings,screen,review):
             for x in range(10,14):
                 buttons[x].drawButton(game_window,(0,0,0))
                 buttons[x].visible = True
-            for x in range(10):
-                buttons[x].visible = False
-            buttons[len(buttons)-1].visible = False
-            buttons[len(buttons)-3].visible = False
         if maxNum:
             buttons[len(buttons)-2].drawButton(game_window)
+            buttons[len(buttons)-2].visible = True
 
 running = True
 #If a function has been selected: Multiplication, Division, Addition, Subtraction
@@ -182,15 +181,7 @@ while running:
                     if buttons[x].isOver(pg.mouse.get_pos()):
                         if x<=9:
                             output=output+str(x)
-                            if changeScreen:
-                                if counter == 0:
-                                    settingsButtons[3].text="Height "+output
-                                    resY = int(output)
-                                else:
-                                    settingsButtons[4].text="Width "+output
-                                    resX = int(output)
-                            else:
-                                buttons[len(buttons)-1].text = output
+                            buttons[len(buttons)-1].text = output
                         elif x==10:
                             funcType="x"
                             isDoingFunction = True
@@ -208,24 +199,11 @@ while running:
                             isDoingFunction = True
                             getMaxNum = True
                         elif x==len(buttons)-3:
-                            if getMaxNum and not changeScreen:
+                            if getMaxNum:
                                 if output != "":
                                     MaxNum=int(output)
                                     Answered=True
                                     getMaxNum = False
-                            elif changeScreen:
-                                counter = counter+1
-                                if counter==2:
-                                    game_window = pg.display.set_mode((resX, resY))
-                                    initialize(firstInit)
-                                    counter = 0
-                                    changeScreen=False
-                                    buttons[10].visible = False
-                                    buttons[11].visible = False
-                                    buttons[12].visible = False
-                                    buttons[13].visible = False
-                                    settingsButtons[1].visible = True
-                                    settingsButtons[2].visible = True
                             elif currentQuestion<=9:
                                 if output =="":
                                     output = "0"
@@ -268,15 +246,7 @@ while running:
                 if settingsButtons[x].visible:
                     if settingsButtons[x].isOver(pg.mouse.get_pos()):
                         if x==0:
-                            for x in range (len(settingsButtons)):
-                                if x > 0:
-                                    settingsButtons[x].visible = not settingsButtons[x].visible
                             showSettings = not showSettings
-                            if not isDoingFunction:
-                                buttons[10].visible = not buttons[10].visible
-                                buttons[11].visible = not buttons[11].visible
-                                buttons[12].visible = not buttons[12].visible
-                                buttons[13].visible = not buttons[13].visible
                         elif x==1:
                             if doNegatives:
                                 settingsButtons[x].color = (247,13,5)
@@ -285,6 +255,11 @@ while running:
                             doNegatives = not doNegatives
                         elif x==2:
                             changeScreen = not changeScreen
+                        elif x==3 or x==4 or x==5:
+                            resX = (int)(settingsButtons[x].text[0:settingsButtons[x].text.find("x")])
+                            resY = (int)(settingsButtons[x].text[settingsButtons[x].text.find("x")+1:len(settingsButtons[x].text)])
+                            game_window = pg.display.set_mode((resX,resY))
+                            initialize(firstInit)
             if showAnswers:
                 for x in range(10):
                     if answerButtons[x][0].isOver(pg.mouse.get_pos()):
