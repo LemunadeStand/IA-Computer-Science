@@ -55,19 +55,20 @@ def initialize(hasInit):
     buttons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+150,200,100,True,"Divide"))
     buttons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+300,200,100,True,"Add"))
     buttons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+450,200,100,True,"Subtract"))
-    #Display buttons 14-17
+    #Display buttons 14-18
     if hasInit:
         buttons.append(tempButtons[0])
-        buttons[14].x=(resX-400)/2+300
+        buttons[14].x=(resX-400)/2+200
         buttons[14].y=(resY-400)/2-200
         buttons.append(tempButtons[1])
-        buttons[15].x=(resX-400)/2+300
+        buttons[15].x=(resX-400)/2+200
         buttons[15].y=(resY-400)/2-100
     else:
-        buttons.append(Button((0,150,150),(resX-400)/2+300,(resY-400)/2-200,200,100,False))
-        buttons.append(Button((0,150,150),(resX-400)/2+300,(resY-400)/2-100,200,100,False))
-    buttons.append(Button((0,0,0),(resX-400)/2+300,(resY-400)/2,200,5,False))
+        buttons.append(Button((0,150,150),(resX-400)/2+200,(resY-400)/2-200,200,100,False))
+        buttons.append(Button((0,150,150),(resX-400)/2+200,(resY-400)/2-100,200,100,False))
+    buttons.append(Button((0,0,0),(resX-400)/2+200,(resY-400)/2,200,5,False))
     buttons.append(Button((0,150,150),(resX-400)/2+200,(resY-400)/2+100,200,100,False))
+    buttons.append(Button((0,150,150),0,(resY-400)/2+200,resX,100,False))
     #Max Number buttons last 3
     buttons.append(Button((42,191,62),0,resY-2*dif-102,300,100,False,"Enter"))
     buttons.append(Button((0,150,150),(resX-400)/2-100,(resY-400)/2,300,100,False,"Max Number: "))
@@ -113,6 +114,8 @@ def update(draw,maxNum,settings,screen,review):
                 buttons[len(buttons)-3].y = resY-100
                 buttons[len(buttons)-3].drawButton(game_window,(0,0,0))
                 buttons[len(buttons)-3].visible = True
+                buttons[18].visible = True
+                buttons[18].drawButton(game_window)
             else:
                 for x in range(10):
                     buttons[x].drawButton(game_window,(0,0,0))
@@ -210,7 +213,7 @@ while running:
                                 userAnswer = int(output)
                                 Answered=True
                                 #Adds answers to array of answer buttons
-                                answerButtons[currentQuestion].append(Answer(num1,num2,answer,userAnswer, userAnswer==answer))
+                                answerButtons[currentQuestion].append(Answer(num1,num2,answer,userAnswer, userAnswer==answer,funcType,doNegatives))
                                 #Checks if users answer is correct
                                 if userAnswer == answer:
                                     answerButtons[currentQuestion][0].color = (17,247,5)
@@ -267,6 +270,7 @@ while running:
                         buttons[17].text = "Your Answer: " + str(answerButtons[x][1].userAnswer)
                         buttons[14].text = "    "+str(answerButtons[x][1].num1)
                         buttons[15].text = funcType+"   "+str(answerButtons[x][1].num2)
+                        buttons[18].text=answerButtons[x][1].getExplanation()
                         
         elif event.type == pg.MOUSEBUTTONUP: 
             pass
@@ -280,6 +284,7 @@ while running:
                 buttons[15].color = (0,150,150)
                 buttons[16].color = (0,0,0)
                 buttons[17].color = (0,150,150)
+                buttons[18].color = (0,150,150)
             if showAnswers:
                 for x in range(10):
                     if answerButtons[x][0].isOver(pg.mouse.get_pos()):
