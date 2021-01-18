@@ -4,6 +4,7 @@ At pc at home
 """
 import pygame as pg
 import random
+import time
 from button import Button
 from answer import Answer
 pg.init()
@@ -57,6 +58,7 @@ def initialize(hasInit):
     buttons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+450,200,100,True,"Subtract"))
     #Display buttons 14-18
     if hasInit:
+        #Maintain Text within the two numbers displayed
         buttons.append(tempButtons[0])
         buttons[14].x=(resX-400)/2+200
         buttons[14].y=(resY-400)/2-200
@@ -69,6 +71,12 @@ def initialize(hasInit):
     buttons.append(Button((0,0,0),(resX-400)/2+200,(resY-400)/2,200,5,False))
     buttons.append(Button((0,150,150),(resX-400)/2+200,(resY-400)/2+100,200,100,False))
     buttons.append(Button((0,150,150),0,(resY-400)/2+200,resX,100,False))
+    #Negative Sign Button 19
+    buttons.append(Button((42,191,62),302,resY-2*dif-102,100,100,False,"-"))
+    #Delete Button 20
+    buttons.append(Button((42,191,62),resX-102,resY-2*dif-102,100,100,False,"Del"))
+    #Timer Button 21
+    buttons.append(Button((0,150,150),resX-200,0,200,100,False,"0.00"))
     #Max Number buttons last 3
     buttons.append(Button((42,191,62),0,resY-2*dif-102,300,100,False,"Enter"))
     buttons.append(Button((0,150,150),(resX-400)/2-100,(resY-400)/2,300,100,False,"Max Number: "))
@@ -79,14 +87,18 @@ def initialize(hasInit):
     #Negative number button
     settingsButtons.append(Button((247,13,5),(resX-200)/2,(resY-600)/2,250,100,False,"Negatives"))
     #Change screen size
-    settingsButtons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+150,300,100,False,"Change Screen Size"))
+    settingsButtons.append(Button((42,191,62),(resX-500)/2,(resY-600)/2+150,500,100,False,"Change Screen Size"))
     settingsButtons.append(Button((42,191,62),50,(resY-600)/2+300,200,100,False,"800x800"))
     settingsButtons.append(Button((42,191,62),300,(resY-600)/2+300,200,100,False,"800x1000"))
     settingsButtons.append(Button((42,191,62),550,(resY-600)/2+300,200,100,False,"1000x800"))
+    #Display timer or not
+    settingsButtons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+450,200,100,False,"Timer"))
+    #Home Button
+    settingsButtons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+600,200,100,False,"Home"))
 
 #Updates drawing of buttons
 #Visible just determines if they can be clicked or not; not if they are actually visible
-def update(draw,maxNum,settings,screen,review):
+def update(draw,maxNum,settings,screen,review,negative,timer):
     game_window.fill((0, 150, 150))
     for x in range(len(settingsButtons)):
         settingsButtons[x].visible = False
@@ -98,7 +110,7 @@ def update(draw,maxNum,settings,screen,review):
     settingsButtons[0].visible = True
     if settings:
         for x in range(len(settingsButtons)):
-            if x<3:
+            if x<3 or x>5:
                 settingsButtons[x].drawButton(game_window,(0,0,0))
                 settingsButtons[x].visible = True
             elif screen:
@@ -108,6 +120,9 @@ def update(draw,maxNum,settings,screen,review):
 
     else:
         if draw:
+            if timer:
+                buttons[21].visible = True
+                buttons[21].drawButton(game_window)
             if review:
                 buttons[len(buttons)-3].text = "Done"
                 buttons[len(buttons)-3].x = 0
@@ -122,6 +137,11 @@ def update(draw,maxNum,settings,screen,review):
                     buttons[x].visible = True
                 buttons[len(buttons)-3].drawButton(game_window,(0,0,0))
                 buttons[len(buttons)-3].visible = True
+                buttons[20].drawButton(game_window,(0,0,0))
+                buttons[20].visible = True
+                if negative:
+                    buttons[19].drawButton(game_window,(0,0,0))
+                    buttons[19].visible = True
             buttons[len(buttons)-1].drawButton(game_window)
             buttons[len(buttons)-1].visible = True
             if not maxNum:
@@ -160,9 +180,14 @@ showSettings = False
 changeScreen = False
 #If 10 questions have been answered
 showAnswers = False
+#Whether timer is shown
+showTimer = True
 #The two numbers that are outputted
 num1 = 0
 num2 = 0
+#Beginning and End times
+begin = 0
+end = 0
 #Maximum Number
 MaxNum = 0
 #The answer that is calculated by computer
@@ -175,6 +200,8 @@ firstInit = False
 initialize(firstInit)
 firstInit = True
 while running:
+    if end==0 and isDoingFunction and not getMaxNum:
+        buttons[21].text="{:.2f}".format(time.time()-begin)
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
@@ -201,12 +228,19 @@ while running:
                             funcType="-"
                             isDoingFunction = True
                             getMaxNum = True
+                        elif x==19 and not getMaxNum:
+                            output = output +"-"
+                            buttons[len(buttons)-1].text = output
+                        elif x==20 and len(output)>0:
+                            output = output[0:len(output)-1]
+                            buttons[len(buttons)-1].text=output
                         elif x==len(buttons)-3:
                             if getMaxNum:
                                 if output != "":
                                     MaxNum=int(output)
                                     Answered=True
                                     getMaxNum = False
+                                    begin = time.time()
                             elif currentQuestion<=9:
                                 if output =="":
                                     output = "0"
@@ -229,6 +263,7 @@ while running:
                                     buttons[14].text = "    "+str(answerButtons[9][1].num1)
                                     buttons[15].text = funcType+"   "+str(answerButtons[9][1].num2)
                                     Answered = False
+                                    end = time.time()
                             #Reset for another time around
                             elif currentQuestion > 9 and showAnswers:
                                 isDoingFunction = False
@@ -241,6 +276,8 @@ while running:
                                     answerButtons[x].pop(1)
                                     answerButtons[x][0].color = (0,150,150)
                                 buttons[17].text = ""
+                                end = 0
+                                buttons[21].text = "0.00"
                             output=""
                             buttons[len(buttons)-1].text = output
                             if showAnswers:
@@ -263,6 +300,30 @@ while running:
                             resY = (int)(settingsButtons[x].text[settingsButtons[x].text.find("x")+1:len(settingsButtons[x].text)])
                             game_window = pg.display.set_mode((resX,resY))
                             initialize(firstInit)
+                        elif x==6:
+                            if showTimer:
+                                settingsButtons[x].color = (247,13,5)
+                            else:
+                                settingsButtons[x].color = (42,191,62)
+                            showTimer = not showTimer
+                        elif x==7:
+                            initialize(False)
+                            getMaxNum = False
+                            isDoingFunction = False
+                            Answered = False
+                            showSettings = False
+                            showAnswers = False
+                            for x in range(10):
+                                if len(answerButtons[x])>1:
+                                    answerButtons[x].pop(1)
+                                answerButtons[x][0].color = (0,150,150)
+                            buttons[17].text = ""
+                            end = 0
+                            buttons[21].text = "0.00"
+                            buttons[len(buttons)-3].text = "Enter"
+                            buttons[len(buttons)-3].x = 0
+                            buttons[len(buttons)-3].y = resY-2*dif-102
+                            currentQuestion = 0
             if showAnswers:
                 for x in range(10):
                     if answerButtons[x][0].isOver(pg.mouse.get_pos()):
@@ -333,4 +394,4 @@ while running:
                     buttons[15].text = "-   "+(str(num2))
                     Answered = False
     pg.display.update()
-    update(isDoingFunction,getMaxNum,showSettings,changeScreen,showAnswers)
+    update(isDoingFunction,getMaxNum,showSettings,changeScreen,showAnswers,doNegatives and len(output)==0,showTimer)
