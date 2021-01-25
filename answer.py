@@ -97,5 +97,3 @@ class Answer():
                 output = output + str(answers[x])+"+"
             output=output[0:len(output)-1]+"="+str(self.answer)
         return output
-            
-
