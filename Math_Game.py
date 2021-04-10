@@ -8,6 +8,10 @@ import time
 from button import Button
 from answer import Answer
 from display import Display
+from collections import deque
+from linked import Linked
+from files import Files
+
 pg.init()
 pg.font.init()
 
@@ -22,6 +26,17 @@ funcType = ""
 #Creating window based onn resolution
 game_window = pg.display.set_mode((resX, resY))
 
+#Create Current Leaderboard
+leaderNamesAdd = Files.createAddNames()
+leaderNamesSub = Files.createSubNames()
+leaderNamesMult = Files.createMultNames()
+leaderNamesDiv = Files.createDivNames()
+leaderScoresAdd = Files.createAddScores()
+leaderScoresSub = Files.createSubScores()
+leaderScoresMult = Files.createMultScores()
+leaderScoresDiv = Files.createDivScores()
+leaderMasterNames = Linked()
+leaderMasterScores = Linked()
 buttons = []
 display = []
 answerButtons = [[]]
@@ -43,8 +58,10 @@ def initialize(hasInit):
     dif = int(resX/5)
     tempDisplay.clear()
     if hasInit:
-        display.append(display[0])
-        tempDisplay.append(buttons[1])
+        tempDisplay.append(display[0])
+        tempDisplay.append(display[1])
+        for x in range(5):
+            tempDisplay.append(display[x+9])
     buttons.clear()
     display.clear()
     settingsButtons.clear()
@@ -63,6 +80,9 @@ def initialize(hasInit):
     buttons.append(Button((42,191,62),302,resY-2*dif-102,100,100,False,"-"))
     #Delete Button 15
     buttons.append(Button((42,191,62),resX-102,resY-2*dif-102,100,100,False,"Del"))
+    #Leaderboard left and right buttons 16 17
+    buttons.append(Button((42,191,62),(resX-100),(resY-100),100,100,False,"->"))
+    buttons.append(Button((42,191,62),(resX-200),(resY-100),100,100,False,"<-"))
     #Enter Button Last button
     buttons.append(Button((42,191,62),0,resY-2*dif-102,300,100,False,"Enter"))
     
@@ -70,11 +90,11 @@ def initialize(hasInit):
     if hasInit:
         #Maintain Text within the two numbers displayed
         display.append(tempDisplay[0])
-        display[0].x=(resX-400)/2+200
-        display[0].y=(resY-400)/2-200
+        display[0].setX((resX-400)/2+200)
+        display[0].setY((resY-400)/2-200)
         display.append(tempDisplay[1])
-        display[1].x=(resX-400)/2+200
-        display[1].y=(resY-400)/2-100
+        display[1].setX((resX-400)/2+200)
+        display[1].setY((resY-400)/2-100)
     else:
         display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2-200,200,100,False))
         display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2-100,200,100,False))
@@ -83,11 +103,21 @@ def initialize(hasInit):
     display.append(Display((0,150,150),0,(resY-400)/2+200,resX,100,False))
     #Timer Display 5
     display.append(Display((0,150,150),resX-200,0,200,100,False,"0.00"))
-    #Number display
+    #Number display 6
     display.append(Display((0,150,150),(resX-400)/2+200, (resY-400)/2,200,100,False))
-    #Max Num Display text
+    #Max Num Display text 7
     display.append(Display((0,150,150),(resX-400)/2-100,(resY-400)/2,300,100,False,"Max Number: "))
-
+    #Leaderboard display buttons 8-13
+    display.append(Display((0,150,150),300,0,300,100,False,"Leaderboard"))
+    if hasInit:
+        for x in range(5):
+            display.append(tempDisplay[x+2])
+    else:
+        display.append(Display((0,150,150),200,100,300,100,False))
+        display.append(Display((0,150,150),200,200,300,100,False))
+        display.append(Display((0,150,150),200,300,300,100,False))
+        display.append(Display((0,150,150),200,400,300,100,False))
+        display.append(Display((0,150,150),200,500,300,100,False))
     #General Settings button
     settingsButtons.append(Button((42,191,62),0,0,300,100,True,"Settings"))
     #Negative number button
@@ -104,7 +134,7 @@ def initialize(hasInit):
 
 #Updates drawing of buttons
 #Visible just determines if they can be clicked or not; not if they are actually visible
-def update(draw,maxNum,settings,screen,review,negative,timer):
+def update(draw,maxNum,settings,screen,review,negative,timer,leader):
     game_window.fill((0, 150, 150))
     for x in range(len(settingsButtons)):
         settingsButtons[x].setVisible(False)
@@ -135,8 +165,17 @@ def update(draw,maxNum,settings,screen,review,negative,timer):
                 buttons[len(buttons)-1].setY(resY-100)
                 buttons[len(buttons)-1].draw(game_window,(0,0,0))
                 buttons[len(buttons)-1].setVisible(True)
-                display[4].setVisible(True)
-                display[4].draw(game_window)
+                if not leader:
+                    display[4].setVisible(True)
+                    display[4].draw(game_window)
+                if leader:
+                    for x in range(6):
+                        display[x+8].draw(game_window)
+                        display[x+8].setVisible(True)
+                    buttons[16].setVisible(True)
+                    buttons[17].setVisible(True)
+                    buttons[16].draw(game_window, (0,0,0))
+                    buttons[17].draw(game_window, (0,0,0))
             else:
                 for x in range(10):
                     buttons[x].draw(game_window,(0,0,0))
@@ -148,9 +187,10 @@ def update(draw,maxNum,settings,screen,review,negative,timer):
                 if negative:
                     buttons[14].draw(game_window,(0,0,0))
                     buttons[14].setVisible(True)
-            display[6].draw(game_window)
-            display[6].setVisible(True)
-            if not maxNum:
+            if not leader:
+                display[6].draw(game_window)
+                display[6].setVisible(True)
+            if not maxNum and not leader:
                 for x in range(4):
                     display[x].setVisible(True)
                     display[x].draw(game_window)
@@ -183,9 +223,13 @@ changeScreen = False
 showAnswers = False
 #Whether timer is shown
 showTimer = True
+#Show leaderboard screen
+showLeader = False
 #The two numbers that are outputted
 num1 = 0
 num2 = 0
+#Current Position of the top leaderboard page
+currentPos = 0
 #Beginning and End times
 begin = 0
 end = 0
@@ -217,24 +261,50 @@ while running:
                             funcType="x"
                             isDoingFunction = True
                             getMaxNum = True
+                            leaderMasterNames=leaderNamesMult
+                            leaderMasterScores=leaderScoresMult
                         elif x==11:
                             funcType="÷"
                             isDoingFunction = True
                             getMaxNum = True
+                            leaderMasterNames=leaderNamesDiv
+                            leaderMasterScores=leaderScoresDiv
                         elif x==12:
                             funcType="+"
                             isDoingFunction = True
                             getMaxNum = True
+                            leaderMasterNames=leaderNamesAdd
+                            leaderMasterScores=leaderScoresAdd
                         elif x==13:
                             funcType="-"
                             isDoingFunction = True
                             getMaxNum = True
+                            leaderMasterNames=leaderNamesSub
+                            leaderMasterScores=leaderScoresSub
                         elif x==14 and not getMaxNum:
                             output = output +"-"
                             display[6].setText(output)
                         elif x==15 and len(output)>0:
                             output = output[0:len(output)-1]
                             display[6].setText(output)
+                        elif x==16:
+                            if(currentPos+5<leaderMasterScores.size):
+                                currentPos+=5
+                                if(leaderMasterScores.size>=currentPos+5):
+                                    for x in range(5):
+                                        display[x+9].setText(leaderMasterNames[currentPos+x]+" "+leaderMasterScores[currentPos+x])
+                                else:
+                                    tempnum = 0
+                                    for x in range(leaderMasterScores.size-currentPos):
+                                        display[x+9].setText(leaderMasterNames[currentPos+x]+" "+leaderMasterScores[currentPos+x])
+                                        tempnum+=1
+                                    for x in range(currentPos+5-leaderMasterScores.size):
+                                        display[x+9+tempnum].setText("--- --.--")
+                        elif x==17:
+                            if(currentPos-5>=0):
+                                currentPos-=5
+                                for x in range(5):
+                                    display[x+9].setText(leaderMasterNames[currentPos+x]+" "+leaderMasterScores[currentPos+x])
                         elif x==len(buttons)-1:
                             if getMaxNum:
                                 if output != "":
@@ -242,7 +312,7 @@ while running:
                                     Answered=True
                                     getMaxNum = False
                                     begin = time.time()
-                            elif currentQuestion<=9:
+                            elif currentQuestion<=9 and not showLeader:
                                 if output =="":
                                     output = "0"
                                 userAnswer = int(output)
@@ -265,14 +335,27 @@ while running:
                                     display[1].setText(funcType+"   "+str(answerButtons[9][1].num2))
                                     Answered = False
                                     end = time.time()
-                            #Reset for another time around
+                            #Go to leaderboard screen
                             elif currentQuestion > 9 and showAnswers:
+                                currentQuestion = 0
+                                showLeader = True
+                                if(leaderMasterScores.size>=5):
+                                    for x in range(5):
+                                        display[x+9].setText(leaderMasterNames[currentPos+x]+" "+leaderMasterScores[currentPos+x])
+                                else:
+                                    for x in range(leaderMasterScores.size):
+                                        display[x+9].setText(leaderMasterNames[currentPos+x]+" "+leaderMasterScores[currentPos+x])
+                                    for x in range(5-leaderMasterScores.size):
+                                        display[x+9].setText("--- --.--")
+                            #Reset for another time around
+                            elif showLeader and showAnswers:
                                 isDoingFunction = False
                                 showAnswers = False
+                                showLeader = False
+                                currentPos = 0
                                 buttons[len(buttons)-1].setText("Enter")
                                 buttons[len(buttons)-1].setX(0)
                                 buttons[len(buttons)-1].setY(resY-2*dif-102)
-                                currentQuestion = 0
                                 for x in range(10):
                                     answerButtons[x].pop(1)
                                     answerButtons[x][0].color = (0,150,150)
@@ -390,4 +473,4 @@ while running:
                     display[1].setText("-   "+(str(num2)))
                     Answered = False
     pg.display.update()
-    update(isDoingFunction,getMaxNum,showSettings,changeScreen,showAnswers,doNegatives and len(output)==0,showTimer)
+    update(isDoingFunction,getMaxNum,showSettings,changeScreen,showAnswers,doNegatives and len(output)==0,showTimer,showLeader)
