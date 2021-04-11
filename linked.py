@@ -35,9 +35,12 @@ class Linked(deque):
         deque.append(self, x)
         self.size+=1
     def insertBefore(self, pos, x):
-        deque.insert(pos-1, x)
+        if pos==0:
+            deque.appendleft(self, x)
+        else:
+            deque.insert(self, pos-1, x)
         self.size+=1
     def insertAfter(self, pos, x):
-        deque.insert(pos+1,x)
+        deque.insert(self, pos+1,x)
         self.size+=1
     
