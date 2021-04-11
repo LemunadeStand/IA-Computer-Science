@@ -11,6 +11,40 @@ class Files():
         self.DS = DS
         self.DN = DN
     
+    def clear(self):
+        self.AS = Linked()
+        self.AN = Linked()
+        self.SS = Linked()
+        self.SN = Linked()
+        self.MS = Linked()
+        self.MN = Linked()
+        self.DS = Linked()
+        self.DN = Linked()
+        f = open("scoresadd.txt","w")
+        f.write("")
+        f.close()
+        f = open("scoressub.txt","w")
+        f.write("")
+        f.close()
+        f = open("scoresmult.txt","w")
+        f.write("")
+        f.close()
+        f = open("scoresdiv.txt","w")
+        f.write("")
+        f.close()
+        f = open("leaderboardadd.txt","w")
+        f.write("")
+        f.close()
+        f = open("leaderboardsub.txt","w")
+        f.write("")
+        f.close()
+        f = open("leaderboarddiv.txt","w")
+        f.write("")
+        f.close()
+        f = open("leaderboardmult.txt","w")
+        f.write("")
+        f.close()
+
     def save(self):
         f = open("scoresadd.txt","w")
         for i in self.AS:

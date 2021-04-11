@@ -130,6 +130,8 @@ def initialize(hasInit):
     settingsButtons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+450,200,100,False,"Timer"))
     #Home Button
     settingsButtons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+600,200,100,False,"Home"))
+    #Clear Leaderboard Button
+    settingsButtons.append(Button((42,191,62),300,0,200,100,False,"Clear LB"))
 
 #Updates drawing of buttons
 #Visible just determines if they can be clicked or not; not if they are actually visible
@@ -152,7 +154,6 @@ def update(draw,maxNum,settings,screen,review,negative,timer,leader,perfect):
                 settingsButtons[x].draw(game_window, (0,0,0))
                 settingsButtons[x].setVisible(True)
                 
-
     else:
         if draw:
             if timer:
@@ -436,6 +437,8 @@ while running:
                             buttons[len(buttons)-1].setX(0)
                             buttons[len(buttons)-1].setY(resY-2*dif-102)
                             currentQuestion = 0
+                        elif x==8:
+                            fileMaster.clear()
             if showAnswers:
                 for x in range(10):
                     if answerButtons[x][0].isOver(pg.mouse.get_pos()):
