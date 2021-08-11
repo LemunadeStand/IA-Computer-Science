@@ -42,7 +42,7 @@ class Files():
         for file in os.listdir():
             f = open(file, "w")
             for x in self.names[i]:
-                f.write(x+"\n")
+                f.write(x)
             f.close()
             i+=1
     
@@ -86,6 +86,7 @@ class Files():
         elif funcType == "÷":
             return self.names[1]
     
+    @staticmethod
     def createScores():
         masterScores = Linked()
         realdir = os.getcwd()
@@ -102,6 +103,7 @@ class Files():
         os.chdir(realdir)
         return masterScores
 
+    @staticmethod
     def createNames():
         masterNames = Linked()
         realdir = os.getcwd()
