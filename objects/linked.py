@@ -43,4 +43,7 @@ class Linked(deque):
     def insertAfter(self, pos, x):
         deque.insert(self, pos+1,x)
         self.size+=1
+    def clearq(self):
+        self.clear()
+        self.size = 0
     

@@ -5,19 +5,19 @@ Implement a stack for all of the questions and inherit stack from deque in colle
 import pygame as pg
 import random
 import time
-from button import Button
-from answer import Answer
-from display import Display
 from collections import deque
-from linked import Linked
-from files import Files
+from objects.linked import Linked
+from objects.files import Files
+from objects.answer import Answer
+from objects.visual.button import Button
+from objects.visual.display import Display
 
 pg.init()
 pg.font.init()
 
 #Resolution
 resX = 800
-resY = 1000
+resY = 800
 #Difference in pixels
 dif = int(resX/5)
 output = ""
@@ -29,7 +29,7 @@ game_window = pg.display.set_mode((resX, resY))
 #Create Current Leaderboard
 leaderMasterNames = Linked()
 leaderMasterScores = Linked()
-fileMaster = Files(Files.createAddScores(), Files.createAddNames(), Files.createSubScores(), Files.createSubNames(), Files.createMultScores(), Files.createMultNames(), Files.createDivScores(), Files.createDivNames())
+fileMaster = Files(Files.createScores(), Files.createNames())
 buttons = []
 display = []
 answerButtons = [[]]
@@ -251,6 +251,7 @@ answer = 0
 #The answer that is entered by the user
 userAnswer = 0
 currentQuestion = 0
+#Letter counter for leaderboard entry
 counter = 0
 firstInit = False
 initialize(firstInit)

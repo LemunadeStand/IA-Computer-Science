@@ -1,5 +1,5 @@
 import pygame as pg
-from display import Display
+from objects.visual.display import Display
 class Button(Display):
     def isOver(self, pos):
         #Pos is the mouse position or a tuple of (x,y) coordinates
