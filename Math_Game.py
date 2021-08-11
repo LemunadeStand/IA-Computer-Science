@@ -1,7 +1,3 @@
-"""
-Ideas:
-Implement a stack for all of the questions and inherit stack from deque in collections or other and super new methods
-"""
 import pygame as pg
 import random
 import time
