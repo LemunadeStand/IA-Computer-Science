@@ -47,28 +47,14 @@ def answerButtonInit():
             answerButtons[x].append(Button((0,150,150),50*(x-5),150,50,50,False))
     return answerButtons
 
-def displayInit(resX,resY,hasInit):
+def displayInit(resX,resY):
     display = []
     tempDisplay = []
     dif = int(resX/5)
-    if hasInit:
-        tempDisplay.append(display[0])
-        tempDisplay.append(display[1])
-        for x in range(5):
-            tempDisplay.append(display[x+9])
-    
+
     #Displays 0-4
-    if hasInit:
-        #Maintain Text within the two numbers displayed
-        display.append(tempDisplay[0])
-        display[0].setX((resX-400)/2+200)
-        display[0].setY((resY-400)/2-200)
-        display.append(tempDisplay[1])
-        display[1].setX((resX-400)/2+200)
-        display[1].setY((resY-400)/2-100)
-    else:
-        display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2-200,200,100,False))
-        display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2-100,200,100,False))
+    display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2-200,200,100,False))
+    display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2-100,200,100,False))
     display.append(Display((0,0,0),(resX-400)/2+200,(resY-400)/2,200,5,False))
     display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2+100,200,100,False))
     display.append(Display((0,150,150),0,(resY-400)/2+200,resX,100,False))
@@ -80,15 +66,11 @@ def displayInit(resX,resY,hasInit):
     display.append(Display((0,150,150),(resX-400)/2-100,(resY-400)/2,300,100,False,"Max Number: "))
     #Leaderboard display buttons 8-13
     display.append(Display((0,150,150),300,0,300,100,False,"Leaderboard"))
-    if hasInit:
-        for x in range(5):
-            display.append(tempDisplay[x+2])
-    else:
-        display.append(Display((0,150,150),200,100,300,100,False))
-        display.append(Display((0,150,150),200,200,300,100,False))
-        display.append(Display((0,150,150),200,300,300,100,False))
-        display.append(Display((0,150,150),200,400,300,100,False))
-        display.append(Display((0,150,150),200,500,300,100,False))
+    display.append(Display((0,150,150),200,100,300,100,False))
+    display.append(Display((0,150,150),200,200,300,100,False))
+    display.append(Display((0,150,150),200,300,300,100,False))
+    display.append(Display((0,150,150),200,400,300,100,False))
+    display.append(Display((0,150,150),200,500,300,100,False))
     #Leaderboard entry letter display 14
     display.append(Display((0,150,150),400,resY-100,100,100,False,"A"))
     return display
@@ -98,12 +80,7 @@ def settingsButtonInit(resX,resY):
     #General Settings button
     settingsButtons.append(Button((42,191,62),0,0,300,100,True,"Settings"))
     #Negative number button
-    settingsButtons.append(Button((247,13,5),(resX-200)/2,(resY-600)/2,250,100,False,"Negatives"))
-    #Change screen size
-    settingsButtons.append(Button((42,191,62),(resX-500)/2,(resY-600)/2+150,500,100,False,"Change Screen Size"))
-    settingsButtons.append(Button((42,191,62),50,(resY-600)/2+300,200,100,False,"800x800"))
-    settingsButtons.append(Button((42,191,62),300,(resY-600)/2+300,200,100,False,"800x1000"))
-    settingsButtons.append(Button((42,191,62),550,(resY-600)/2+300,200,100,False,"1000x800"))
+    settingsButtons.append(Button((247,13,5),(resX-200)/2,(resY-400)/2,250,100,False,"Negatives"))
     #Display timer or not
     settingsButtons.append(Button((42,191,62),(resX-200)/2,(resY-600)/2+450,200,100,False,"Timer"))
     #Home Button
@@ -111,3 +88,45 @@ def settingsButtonInit(resX,resY):
     #Clear Leaderboard Button
     settingsButtons.append(Button((42,191,62),300,0,200,100,False,"Clear LB"))
     return settingsButtons
+
+def variablesInit():
+    variables = {
+        #If a function has been selected: Multiplication, Division, Addition, Subtraction
+        'isDoingFunction': False,
+        #If the Maximum number has been received yet
+        'getMaxNum' : False,
+        #If the question has been answered
+        'Answered' : False,
+        #Include Negative answers for subtraction
+        'doNegatives' : False,
+        #If settings is being shown
+        'showSettings' : False,
+        #If 10 questions have been answered
+        'showAnswers' : False,
+        #Whether timer is shown
+        'showTimer' : True,
+        #Show leaderboard screen
+        'showLeader' : False,
+        #Got perfect score or not
+        'perfectScore' : True,
+        #Leaderboard temporary record string
+        'record' : "",
+        #The two numbers that are outputted
+        'num1' : 0,
+        'num2' : 0,
+        #Current Position of the top leaderboard page
+        'currentPos' : 0,
+        #Beginning and End times
+        'begin' : 0,
+        'end' : 0,
+        #Maximum Number
+        'MaxNum' : 0,
+        #The answer that is calculated by computer
+        'answer' : 0,
+        #The answer that is entered by the user
+        'userAnswer' : 0,
+        'currentQuestion' : 0,
+        #Letter counter for leaderboard entry
+        'counter' : 0
+    }
+    return variables

@@ -90,6 +90,7 @@ class Files():
     def createScores():
         masterScores = Linked()
         realdir = os.getcwd()
+        print(os.getcwd())
         os.chdir(os.getcwd()+"/leaderboard/scores")
         for file in os.listdir():
             f = open(file,"r")
