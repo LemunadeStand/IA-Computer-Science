@@ -6,7 +6,6 @@ class Button(Display):
         if pos[0] > self.getX() and pos[0] < self.getX() + self.getWidth():
             if pos[1] > self.getY() and pos[1] < self.getY() + self.getHeight():
                 return True
-            
         return False
     def draw(self,window,outlineColor=None):
         if outlineColor:
@@ -17,4 +16,5 @@ class Button(Display):
         if self.getText() != '':
             font = pg.font.SysFont('Arial', 60)
             text = font.render(self.getText(), 1, (0,0,0))
-            window.blit(text, (self.getX() + (self.getWidth()/2 - text.get_width()/2), self.getY() + (self.getHeight()/2 - text.get_height()/2)))
+            window.blit(text, (self.getX() + (self.getWidth()/2 - text.get_width()/2),
+                               self.getY() + (self.getHeight()/2 - text.get_height()/2)))

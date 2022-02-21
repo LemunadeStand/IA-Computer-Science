@@ -1,7 +1,3 @@
-from collections import deque
-from objects.linked import Linked
-from objects.files import Files
-from objects.answer import Answer
 from objects.visual.button import Button
 from objects.visual.display import Display
 
@@ -49,9 +45,6 @@ def answerButtonInit():
 
 def displayInit(resX,resY):
     display = []
-    tempDisplay = []
-    dif = int(resX/5)
-
     #Displays 0-4
     display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2-200,200,100,False))
     display.append(Display((0,150,150),(resX-400)/2+200,(resY-400)/2-100,200,100,False))

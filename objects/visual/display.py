@@ -10,13 +10,14 @@ class Display():
         self.__text = text
         self.__visible = visible
 
-    #Draws button with optional outline color
     def draw(self,window):    
         pg.draw.rect(window, self.color, (self.__x,self.__y,self.__width,self.__height),0)
         if self.__text != '':
             font = pg.font.SysFont('Arial', 60)
             text = font.render(self.__text, 1, (0,0,0))
-            window.blit(text, (self.__x + (self.__width/2 - text.get_width()/2), self.__y + (self.__height/2 - text.get_height()/2)))
+            #Divide by 2 for width and height to center text
+            window.blit(text, (self.__x + (self.__width/2 - text.get_width()/2),
+                               self.__y + (self.__height/2 - text.get_height()/2)))
     def setText(self,text):
         self.__text=text
     def getText(self):

@@ -1,10 +1,9 @@
 from objects.linked import Linked
 import os
 class Files():
-    #XS is "X" function scores and XN is "X" function name
     def __init__(self, scores, names):
-        self.scores = Linked([scores[0], scores[1], scores[2], scores[3]])
-        self.names = Linked([names[0], names[1], names[2], names[3]])
+        self.scores = [scores[0], scores[1], scores[2], scores[3]]
+        self.names = [names[0], names[1], names[2], names[3]]
     
     def clear(self):
         for x in self.scores:
@@ -31,24 +30,29 @@ class Files():
         realdir=os.getcwd()
         os.chdir(os.getcwd()+"/leaderboard/scores")
         i = 0
+        #Goes through all files in scores folder
         for file in os.listdir():
             f = open(file, "w")
+            #Writes new scores in specified format "score,time"
             for x in self.scores[i]:
-                f.write(x+"\n")
+                f.write(x[0]+","+x[1]+"\n")
             f.close()
             i+=1
         i = 0
         os.chdir(realdir+"/leaderboard/names")
+        #Goes through all files in names folder
         for file in os.listdir():
             f = open(file, "w")
+            #Writes new names in one long string
             for x in self.names[i]:
                 f.write(x)
             f.close()
             i+=1
     
-    def add(self, funcType, score, name):
+    def add(self, funcType, score, time, name):
         x=0
         i=0
+        #Decide which linnked list based on operation
         if funcType=="+":
             i=0
         elif funcType=="-":
@@ -57,13 +61,16 @@ class Files():
             i=2
         elif funcType=="÷":
             i=1
-        while x<self.scores[i].size and score>float(self.scores[i][x]):
+        #Linearly searches through linked list
+        while x<self.scores[i].size and score<int(self.scores[i][x][0]):
             x+=1
+        #Adds entry to end if gone through entire list
         if x==self.scores[i].size:
-            self.scores[i].insertTail(str(score))
+            self.scores[i].insertTail(tuple([str(score), str(time)]))
             self.names[i].insertTail(name)
+        #Inserts entry where it should be
         else:
-            self.scores[i].insertBefore(x, str(score))
+            self.scores[i].insertBefore(x, tuple([str(score), str(time)]))
             self.names[i].insertBefore(x, name)
     
     def getMasterScores(self, funcType):
@@ -88,25 +95,33 @@ class Files():
     
     @staticmethod
     def createScores():
-        masterScores = Linked()
+        masterScores = []
         realdir = os.getcwd()
-        print(os.getcwd())
         os.chdir(os.getcwd()+"/leaderboard/scores")
+        #Go through all function types files
         for file in os.listdir():
+            #Read from file
             f = open(file,"r")
+            #Subscores and times per functype
             subScores = Linked()
+            subTimes = Linked()
             for x in f:
                 if x.endswith('\n'):
                     x = x[0:len(x)-1]
-                subScores.insertTail(x)
-            masterScores.insertTail(subScores)
+                subScores.insertTail(x[0:x.index(',')])
+                subTimes.insertTail(x[x.index(',')+1:])
+            joinScoresTimes = Linked()
+            #Merge scores and times
+            for x in range(subScores.size):
+                joinScoresTimes.insertTail(tuple([subScores[x], subTimes[x]]))
+            masterScores.append(joinScoresTimes)
             f.close()
         os.chdir(realdir)
         return masterScores
 
     @staticmethod
     def createNames():
-        masterNames = Linked()
+        masterNames = []
         realdir = os.getcwd()
         os.chdir(os.getcwd()+"/leaderboard/names")
         for file in os.listdir():
@@ -118,6 +133,6 @@ class Files():
             for x in range(int(times)):
                 subNames.insertTail(f.read(3))
             f.close()
-            masterNames.insertTail(subNames)
+            masterNames.append(subNames)
         os.chdir(realdir)
         return masterNames
