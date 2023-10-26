@@ -1,4 +1,4 @@
-﻿# IA-Computer-Science
+﻿# Python Math Game
 For setup:
 1. Download Python if not already installed from this website: https://www.python.org/downloads/
 2. When going through the installer make sure to ADD TO PATH
